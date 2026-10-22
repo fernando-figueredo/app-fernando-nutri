@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 140 20% 98%;
+    --foreground: 160 30% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 160 30% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 30% 12%;
+
+    /* Nutri emerald green primary */
+    --primary: 142 72% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 140 25% 94%;
+    --secondary-foreground: 142 72% 25%;
+
+    --muted: 140 15% 95%;
+    --muted-foreground: 160 10% 45%;
+
+    --accent: 142 50% 92%;
+    --accent-foreground: 142 72% 25%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 140 20% 90%;
+    --input: 140 20% 88%;
+    --ring: 142 72% 35%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 160 25% 7%;
+    --foreground: 140 20% 98%;
+
+    --card: 160 25% 10%;
+    --card-foreground: 140 20% 98%;
+
+    --popover: 160 25% 10%;
+    --popover-foreground: 140 20% 98%;
+
+    --primary: 142 70% 45%;
+    --primary-foreground: 160 30% 10%;
+
+    --secondary: 160 20% 15%;
+    --secondary-foreground: 140 20% 98%;
+
+    --muted: 160 20% 15%;
+    --muted-foreground: 140 10% 65%;
+
+    --accent: 160 20% 15%;
+    --accent-foreground: 140 20% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 160 20% 18%;
+    --input: 160 20% 18%;
+    --ring: 142 70% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* Custom glassmorphism and subtle elevation */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(22, 163, 74, 0.12);
+  box-shadow: 0 20px 40px -15px rgba(22, 163, 74, 0.08), 0 0 1px 1px rgba(255, 255, 255, 0.9) inset;
+}
+
+.auth-gradient-bg {
+  background: radial-gradient(circle at 10% 20%, rgba(34, 197, 94, 0.08) 0%, transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+              radial-gradient(circle at 50% 50%, rgba(240, 253, 244, 0.6) 0%, #f8faf9 100%);
+}
