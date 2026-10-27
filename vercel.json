@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/auth/:path*",
+      "destination": "https://ep-flat-forest-b6g38229.neonauth.c-2.sa-east-1.aws.neon.tech/neondb/auth/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

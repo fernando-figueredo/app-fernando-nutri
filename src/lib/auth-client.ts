@@ -1,9 +1,14 @@
 import { createAuthClient } from "better-auth/react"
 import { jwtClient } from "better-auth/client/plugins"
 
+const DEFAULT_REMOTE_AUTH_URL =
+  "https://ep-flat-forest-b6g38229.neonauth.c-2.sa-east-1.aws.neon.tech/neondb/auth"
+
 export const NEON_AUTH_URL =
   import.meta.env.VITE_NEON_AUTH_URL ||
-  "https://ep-flat-forest-b6g38229.neonauth.c-2.sa-east-1.aws.neon.tech/neondb/auth"
+  (typeof window !== "undefined" && window.location.hostname.endsWith("vercel.app")
+    ? "/api/auth"
+    : DEFAULT_REMOTE_AUTH_URL)
 
 export const NEON_DATA_API_URL =
   import.meta.env.VITE_NEON_DATA_API_URL ||
