@@ -77,9 +77,26 @@ export interface Consulta {
   created_at?: string
 }
 
+export interface RefeicoesDia {
+  cafe_da_manha: string[]
+  lanche_manha: string[]
+  almoco: string[]
+  lanche_tarde: string[]
+  jantar: string[]
+}
+
+export interface DiaPlanoAlimentar {
+  dia: string
+  refeicoes: RefeicoesDia
+}
+
+export interface PlanoSemanalConteudo {
+  plano_semanal: DiaPlanoAlimentar[]
+}
+
 export interface PlanoAlimentar {
   id: string
   paciente_id: string
-  conteudo: any
+  conteudo: PlanoSemanalConteudo | any
   created_at: string
 }

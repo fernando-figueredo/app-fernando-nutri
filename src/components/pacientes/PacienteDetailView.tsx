@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { dataApiFetch } from "@/lib/data-api"
-import { Paciente, Consulta, PlanoAlimentar, PacienteFormData } from "@/types/paciente"
+import { Paciente, Consulta, PlanoAlimentar, PacienteFormData, PlanoSemanalConteudo } from "@/types/paciente"
+import { GeradorPlanoAlimentar } from "@/components/pacientes/GeradorPlanoAlimentar"
 import {
   formatPhone,
   formatTimeInput,
@@ -241,6 +242,20 @@ export const PacienteDetailView: React.FC<PacienteDetailViewProps> = ({
     loadConsultas()
     loadPlanos()
   }, [loadPaciente, loadConsultas, loadPlanos])
+
+  // Salvar novo plano alimentar gerado ou manual
+  const handlePlanoSalvo = async (conteudo: PlanoSemanalConteudo) => {
+    await dataApiFetch("/planos_alimentares", {
+      method: "POST",
+      body: {
+        paciente_id: pacienteId,
+        conteudo: conteudo,
+      },
+      token: session?.token,
+      prefer: "return=representation",
+    })
+    await loadPlanos()
+  }
 
   // Handlers para edição do paciente
   const updateField = (field: keyof PacienteFormData, value: any) => {
@@ -1443,35 +1458,28 @@ export const PacienteDetailView: React.FC<PacienteDetailViewProps> = ({
       {/* ================================================================ */}
       {/* SEÇÃO 3: PLANOS ALIMENTARES                                      */}
       {/* ================================================================ */}
-      {activeSection === "planos" && (
+      {activeSection === "planos" && paciente && (
         <div className="space-y-6 animate-fade-in">
+          {/* Gerador de Plano com IA / Edição Interativa */}
+          <GeradorPlanoAlimentar
+            paciente={paciente}
+            onPlanoSalvo={handlePlanoSalvo}
+          />
+
           <Card className="bg-white border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
-              <div>
-                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <Utensils className="w-4 h-4 text-emerald-600" />
-                  <span>Planos Alimentares do Paciente</span>
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Gere e consulte prescrições e cardápios individualizados
-                </p>
-              </div>
-
-              {/* Botão Gerar Plano Alimentar bem visível (conforme regra do prompt 5: sem funcionalidade ainda) */}
-              <Button
-                onClick={() => alert("A geração de Planos Alimentares será implementada no próximo prompt! ✨")}
-                className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md shadow-emerald-700/25 gap-2"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>Gerar Plano Alimentar</span>
-              </Button>
-            </div>
-
             {/* Histórico de Planos */}
-            <div className="pt-6">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">
-                Histórico de Planos Salvos
-              </h4>
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-emerald-600" />
+                    <span>Histórico de Planos Salvos ({planos.length})</span>
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Planos alimentares gravados em ordem cronológica
+                  </p>
+                </div>
+              </div>
 
               {loadingPlanos ? (
                 <div className="space-y-3">
@@ -1488,11 +1496,11 @@ export const PacienteDetailView: React.FC<PacienteDetailViewProps> = ({
                     Nenhum plano alimentar gerado ainda
                   </p>
                   <p className="text-xs text-slate-400 mt-0.5 max-w-sm mx-auto">
-                    Quando você gerar planos para este paciente, eles ficarão salvos aqui em ordem cronológica.
+                    Clique em "✨ Gerar Plano com IA" acima para criar um cardápio semanal completo para este paciente.
                   </p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {planos.map((plano) => {
                     const isExpanded = selectedPlano?.id === plano.id
                     const dataCriacao = new Date(plano.created_at).toLocaleDateString("pt-BR", {
@@ -1503,25 +1511,31 @@ export const PacienteDetailView: React.FC<PacienteDetailViewProps> = ({
                       minute: "2-digit",
                     })
 
+                    const planoConteudo: PlanoSemanalConteudo = plano.conteudo
+                    const hasEstruturaSemanal = Array.isArray(planoConteudo?.plano_semanal)
+
                     return (
                       <div
                         key={plano.id}
-                        className="border border-slate-200 rounded-2xl overflow-hidden transition-all duration-200"
+                        className="border border-slate-200 rounded-2xl overflow-hidden transition-all duration-200 bg-white hover:border-emerald-200"
                       >
                         <button
+                          type="button"
                           onClick={() => setSelectedPlano(isExpanded ? null : plano)}
-                          className="w-full p-4 flex items-center justify-between text-left bg-white hover:bg-emerald-50/30 transition-colors"
+                          className="w-full p-4 flex items-center justify-between text-left hover:bg-emerald-50/30 transition-colors"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-800 flex items-center justify-center">
-                              <FileText className="w-4 h-4" />
+                            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                              <FileText className="w-5 h-5" />
                             </div>
                             <div>
                               <p className="text-sm font-bold text-slate-800">
                                 Plano Alimentar — {dataCriacao}
                               </p>
                               <p className="text-xs text-slate-400">
-                                Clique para {isExpanded ? "ocultar" : "ver conteúdo completo"}
+                                {hasEstruturaSemanal
+                                  ? `${planoConteudo.plano_semanal.length} dias configurados • Clique para ${isExpanded ? "recolher" : "visualizar"}`
+                                  : `Clique para ${isExpanded ? "ocultar" : "ver detalhes"}`}
                               </p>
                             </div>
                           </div>
@@ -1532,12 +1546,58 @@ export const PacienteDetailView: React.FC<PacienteDetailViewProps> = ({
                           )}
                         </button>
 
-                        {/* Conteúdo completo ao clicar no plano */}
+                        {/* Conteúdo completo ao expandir */}
                         {isExpanded && (
-                          <div className="p-5 bg-slate-50 border-t border-slate-200 text-xs text-slate-700 font-mono overflow-x-auto leading-relaxed whitespace-pre-wrap">
-                            {typeof plano.conteudo === "object"
-                              ? JSON.stringify(plano.conteudo, null, 2)
-                              : String(plano.conteudo)}
+                          <div className="p-5 bg-slate-50 border-t border-slate-200 text-xs">
+                            {hasEstruturaSemanal ? (
+                              <div className="space-y-4">
+                                {planoConteudo.plano_semanal.map((diaItem, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs"
+                                  >
+                                    <h5 className="font-bold text-emerald-800 mb-2.5 pb-1 border-b border-slate-100 flex items-center gap-1.5">
+                                      <Calendar className="w-3.5 h-3.5" />
+                                      <span>{diaItem.dia}</span>
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                      {Object.entries(diaItem.refeicoes || {}).map(([refKey, opcoes]) => {
+                                        const labels: Record<string, string> = {
+                                          cafe_da_manha: "Café da Manhã",
+                                          lanche_manha: "Lanche da Manhã",
+                                          almoco: "Almoço",
+                                          lanche_tarde: "Lanche da Tarde",
+                                          jantar: "Jantar",
+                                        }
+                                        const arrOpcoes = Array.isArray(opcoes) ? opcoes.filter(Boolean) : []
+                                        return (
+                                          <div key={refKey} className="bg-slate-50/70 p-2.5 rounded-lg border border-slate-100">
+                                            <span className="font-semibold text-slate-700 block text-[11px] uppercase tracking-wider mb-1">
+                                              {labels[refKey] || refKey}
+                                            </span>
+                                            {arrOpcoes.length > 0 ? (
+                                              <ul className="list-disc list-inside space-y-0.5 text-slate-600 text-[11px]">
+                                                {arrOpcoes.map((op, oIdx) => (
+                                                  <li key={oIdx} className="leading-tight">{op}</li>
+                                                ))}
+                                              </ul>
+                                            ) : (
+                                              <span className="text-slate-400 italic text-[10px]">Sem opções cadastradas</span>
+                                            )}
+                                          </div>
+                                        )
+                                      })}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <pre className="font-mono text-slate-700 whitespace-pre-wrap overflow-x-auto">
+                                {typeof plano.conteudo === "object"
+                                  ? JSON.stringify(plano.conteudo, null, 2)
+                                  : String(plano.conteudo)}
+                              </pre>
+                            )}
                           </div>
                         )}
                       </div>

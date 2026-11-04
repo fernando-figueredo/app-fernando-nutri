@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "better-auth": "^1.7.10",
     "clsx": "^2.1.1",
     "lucide-react": "^1.57.0",
@@ -18,6 +19,7 @@
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^24.19.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
