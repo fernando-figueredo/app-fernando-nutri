@@ -130,8 +130,8 @@ O formato do JSON retornado deve seguir exatamente esta estrutura:
       required: ["plano_semanal"],
     }
 
-    // Lista de modelos suportados em ordem de preferência
-    const candidateModels = ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest"]
+    // Lista de modelos suportados em ordem de preferência (gemini-3.5-flash e flash-lite são ultra rápidos e estáveis)
+    const candidateModels = ["gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-flash-latest"]
 
     let lastError: any = null
     let responseText: string | null = null
